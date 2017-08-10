@@ -1,6 +1,11 @@
-pragma solidity ^0.4.10;
+pragma solidity ^0.4.11;
+
+import "./IterableMap.sol";
+
 contract GenesisVisionPlatform {
     
+    using iMap for iMap.iMapStringAddress
+
     modifier genesisVisionManagerOnly {
         require(msg.sender == genesisVisionManager);
         _;
@@ -11,7 +16,8 @@ contract GenesisVisionPlatform {
 
     mapping (string => address) brokers;
 
-    mapping (string => uint8) managerLevels;
+    iMap.iMapManagers managers;
+
     mapping (string => string) managerToBroker;
     mapping (string => uint) managerFreeTokens;
     event NewBroker(string brokerName);
@@ -30,10 +36,10 @@ contract GenesisVisionPlatform {
         brokers[brokerName] = brokerContract;
     }
 
-    function registerManager(string managerName, string brokerName) genesisVisionManagerOnly {
-        // TODO check exist
-        managerLevels[managerName] = 1;
-        // TODO check broker exist
+    function registerManager(string managerName, string brokerName, uint8 managementFee, uint8 successFee) genesisVisionManagerOnly {        
+        require(!managers.contains(managerName));
+
+        managers.insert(managerName, 1, managementFee, successFee);
         managerToBroker[managerName] = brokerName;
 
         mintManagerTokens(managerName, 1);
