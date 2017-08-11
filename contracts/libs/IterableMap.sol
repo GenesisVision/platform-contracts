@@ -2,7 +2,7 @@ pragma solidity ^0.4.11;
 
 import "./Models.sol";
 
-library iManagers {
+library IterableMap {
     struct iManagerMapping {
         mapping(string => Models.Manager) data;
         string[] keys;

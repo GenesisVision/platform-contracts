@@ -4,7 +4,7 @@ import "./libs/Models.sol";
 import "./libs/IterableMap.sol";
 
 contract GenesisVisionPlatform {
-    using iManagers for iManagers.iManagerMapping;
+    using IterableMap for IterableMap.iManagerMapping;
 
     modifier genesisVisionManagerOnly {
         require(msg.sender == genesisVisionManager);
@@ -18,7 +18,7 @@ contract GenesisVisionPlatform {
 
     mapping (string => address) brokers;
 
-    iManagers.iManagerMapping managers;
+    IterableMap.iManagerMapping managers;
 
     mapping (string => string) managerToBroker;
     mapping (string => uint) managerFreeTokens;
@@ -30,16 +30,23 @@ contract GenesisVisionPlatform {
     }
 
     function setGenesisVisionManager(address manager) {
+        require(msg.sender == contractOwner);
         genesisVisionManager = manager;
     }
 
     function registerBroker (string brokerName, address brokerContract) genesisVisionManagerOnly {
-        // TODO check exist
+        require(brokers[brokerName] == 0);
+
         brokers[brokerName] = brokerContract;
+    }
+
+    function getBrokerAddress(string brokerName) genesisVisionManagerOnly returns (address) {
+        return brokers[brokerName];
     }
 
     function registerManager(string managerName, string brokerName, uint8 managementFee, uint8 successFee) genesisVisionManagerOnly {        
         require(!managers.contains(managerName));
+        require(brokers[brokerName] != 0);
 
         managers.insert(managerName, 1, managementFee, successFee);
         managerToBroker[managerName] = brokerName;
