@@ -3,7 +3,12 @@ pragma solidity ^0.4.11;
 import "./Models.sol";
 
 library iManagers {
-    function insert(Models.Manager storage self, string key, uint8 level, uint8 managementFee, uint8 successFee) internal returns (bool replaced) {
+    struct iManagerMapping {
+        mapping(string => Models.Manager) data;
+        string[] keys;
+    }
+
+    function insert(iManagerMapping storage self, string key, uint8 level, uint8 managementFee, uint8 successFee) internal returns (bool replaced) {
         Models.Manager storage e = self.data[key];
         e.name = key;
         e.level = level;
@@ -18,7 +23,7 @@ library iManagers {
         }
     }
 
-    function contains(Models.Manager storage self, string key) constant returns (bool exists) {
+    function contains(iManagerMapping storage self, string key) constant returns (bool exists) {
         return self.data[key].keyIndex > 0;
     }
 }

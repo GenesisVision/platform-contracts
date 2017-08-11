@@ -4,7 +4,8 @@ import "./libs/Models.sol";
 import "./libs/IterableMap.sol";
 
 contract GenesisVisionPlatform {
-    
+    using iManagers for iManagers.iManagerMapping;
+
     modifier genesisVisionManagerOnly {
         require(msg.sender == genesisVisionManager);
         _;
@@ -15,7 +16,7 @@ contract GenesisVisionPlatform {
 
     mapping (string => address) brokers;
 
-    iManagers managers;
+    iManagers.iManagerMapping managers;
 
     mapping (string => string) managerToBroker;
     mapping (string => uint) managerFreeTokens;
