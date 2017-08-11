@@ -26,4 +26,8 @@ library iManagers {
     function contains(iManagerMapping storage self, string key) constant returns (bool exists) {
         return self.data[key].keyIndex > 0;
     }
+
+    function get(iManagerMapping storage self, string key) internal constant returns (Models.Manager) {
+        return self.data[key];
+    }
 }
