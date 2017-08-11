@@ -1,11 +1,10 @@
 pragma solidity ^0.4.11;
 
-import "./IterableMap.sol";
+import "./libs/Models.sol";
+import "./libs/IterableMap.sol";
 
 contract GenesisVisionPlatform {
     
-    using iMap for iMap.iMapStringAddress
-
     modifier genesisVisionManagerOnly {
         require(msg.sender == genesisVisionManager);
         _;
@@ -16,7 +15,7 @@ contract GenesisVisionPlatform {
 
     mapping (string => address) brokers;
 
-    iMap.iMapManagers managers;
+    iManagers managers;
 
     mapping (string => string) managerToBroker;
     mapping (string => uint) managerFreeTokens;
