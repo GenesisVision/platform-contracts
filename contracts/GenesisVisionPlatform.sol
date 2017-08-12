@@ -54,6 +54,19 @@ contract GenesisVisionPlatform {
         mintManagerTokens(managerName, 1);
     }
 
+    function getManager(uint idx) genesisVisionManagerOnly returns (string, uint8) {
+        uint arraySize = managers.size();
+
+        if (idx >= arraySize)
+        {
+            idx = arraySize - 1;
+        }
+        
+        Models.Manager memory manager = managers.getValueByIndex(idx);
+
+        return (manager.name, manager.level);
+    }
+
     function levelUp (string managerName) internal {
         Models.Manager memory manager = managers.get(managerName);
 

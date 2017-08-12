@@ -30,4 +30,16 @@ library IterableMap {
     function get(iManagerMapping storage self, string key) internal constant returns (Models.Manager) {
         return self.data[key];
     }
+
+    function size(iManagerMapping storage self) internal constant returns (uint) {
+        return self.keys.length;
+    }
+
+    function getValueByIndex(iManagerMapping storage self, uint idx) internal constant returns (Models.Manager) {
+        return self.data[self.keys[idx]];
+    }
+
+    function getKeyByIndex(iManagerMapping storage self, uint idx) internal constant returns (string) {
+        return self.keys[idx];
+    }
 }
