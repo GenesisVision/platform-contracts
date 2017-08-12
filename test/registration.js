@@ -25,4 +25,15 @@ contract("GenesisVisionPlatform", function (accounts) {
                 assert.equal(account1, broker.valueOf(), "Broker should exist");
             });
     });
+
+    it("should register manager", () => {
+        return platform.registerManager("testManager", "test", 10, 10)
+            .then(() => {
+                return platform.getManager.call(0);
+            })
+            .then((m) => {
+                assert.equal("testManager", m[0], "Manager's name is testManager");
+                assert.equal(1, m[1], "Manager's level is 1");
+            });
+    });
 });
