@@ -1,15 +1,18 @@
+const IMap = artifacts.require("./libs/IMap.sol");
 const Models = artifacts.require("./libs/Models.sol");
-const IterableMap = artifacts.require("./libs/IterableMap.sol");
+const IMapModels = artifacts.require("./libs/IMapModels.sol");
 const GenesisVisionPlatform = artifacts.require("./GenesisVisionPlatform.sol");
 
 module.exports = function(deployer, network, accounts) {
     const manager = accounts[0];
 
+    deployer.deploy(IMap);
+    deployer.link(IMap, Models);
     deployer.deploy(Models);
-    deployer.link(Models, IterableMap);
+    deployer.link(Models, IMapModels);
     deployer.link(Models, GenesisVisionPlatform);
-    deployer.deploy(IterableMap);
-    deployer.link(IterableMap, GenesisVisionPlatform);
+    deployer.deploy(IMapModels);
+    deployer.link(IMapModels, GenesisVisionPlatform);
     deployer.deploy(GenesisVisionPlatform);
 };
 

@@ -1,10 +1,11 @@
 pragma solidity ^0.4.11;
 
+import "./libs/IMap.sol";
 import "./libs/Models.sol";
-import "./libs/IterableMap.sol";
+import "./libs/IMapModels.sol";
 
 contract GenesisVisionPlatform {
-    using IterableMap for IterableMap.iManagerMapping;
+    using IMapModels for IMapModels.iManagerMapping;
 
     modifier genesisVisionManagerOnly {
         require(msg.sender == genesisVisionManager);
@@ -17,8 +18,9 @@ contract GenesisVisionPlatform {
     address genesisVisionManager;
 
     mapping (string => address) brokers;
-    IterableMap.iManagerMapping managers;
+    IMapModels.iManagerMapping managers;
     mapping (string => string) managerToBroker;
+    IMap.iAddressUintMapping investorsManagers;    
 
     event NewBroker(string brokerName);
     event NewManager(string managerName, string brokerName);
@@ -52,7 +54,7 @@ contract GenesisVisionPlatform {
         mintManagerTokens(managerName, 1);
     }
 
-    function getManager(uint idx) genesisVisionManagerOnly returns (string, uint8) {
+    function getManager(uint idx) genesisVisionManagerOnly returns (string, uint8, uint32) {
         uint arraySize = managers.size();
 
         if (idx >= arraySize)
@@ -62,7 +64,7 @@ contract GenesisVisionPlatform {
         
         Models.Manager memory manager = managers.getValueByIndex(idx);
 
-        return (manager.name, manager.level);
+        return (manager.name, manager.level, manager.freeCoins);
     }
 
     function levelUp (string managerName) internal {

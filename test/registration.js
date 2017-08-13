@@ -34,6 +34,7 @@ contract("GenesisVisionPlatform", function (accounts) {
             .then((m) => {
                 assert.equal("testManager", m[0], "Manager's name is testManager");
                 assert.equal(1, m[1], "Manager's level is 1");
+                assert.equal(1000, m[2], "Manager's free coins amount is 1000");
             });
     });
 });
