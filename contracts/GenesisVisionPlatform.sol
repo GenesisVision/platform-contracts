@@ -17,11 +17,9 @@ contract GenesisVisionPlatform {
     address genesisVisionManager;
 
     mapping (string => address) brokers;
-
     IterableMap.iManagerMapping managers;
-
     mapping (string => string) managerToBroker;
-    mapping (string => uint) managerFreeTokens;
+
     event NewBroker(string brokerName);
     event NewManager(string managerName, string brokerName);
 
@@ -50,7 +48,7 @@ contract GenesisVisionPlatform {
 
         managers.insert(managerName, 1, managementFee, successFee);
         managerToBroker[managerName] = brokerName;
-
+        
         mintManagerTokens(managerName, 1);
     }
 
@@ -75,7 +73,7 @@ contract GenesisVisionPlatform {
     }
 
     function mintManagerTokens (string managerName, uint8 managerLevel) internal {
-        managerFreeTokens[managerName] += tokensPerLevel[managerLevel];
+        managers.data[managerName].freeCoins += tokensPerLevel[managerLevel];
     }
 
     function() { 

@@ -7,5 +7,6 @@ library Models {
         uint8 level;
         uint8 managementFee;
         uint8 successFee;
+        uint32 freeCoins;
     }
 }
