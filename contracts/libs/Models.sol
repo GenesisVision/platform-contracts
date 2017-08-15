@@ -10,6 +10,9 @@ library Models {
         uint8 managementFee;
         uint8 successFee;
         uint32 freeCoins;
+        string accountCurrency;
+        uint8 tradingPeriod;
+        uint64 nextClearing;
         IMap.iAddressUintMapping investorsCoins;
         IMap.iAddressUintMapping pendingCoins;
     }
