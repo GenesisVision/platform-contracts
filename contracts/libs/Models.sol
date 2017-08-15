@@ -11,5 +11,6 @@ library Models {
         uint8 successFee;
         uint32 freeCoins;
         IMap.iAddressUintMapping investorsCoins;
+        IMap.iAddressUintMapping pendingCoins;
     }
 }

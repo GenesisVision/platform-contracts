@@ -3,6 +3,7 @@ pragma solidity ^0.4.11;
 import "./libs/IMap.sol";
 import "./libs/Models.sol";
 import "./libs/IMapModels.sol";
+import 'zeppelin-solidity/contracts/token/StandardToken.sol';
 
 contract GenesisVisionPlatform {
     using IMapModels for IMapModels.iManagerMapping;
@@ -22,11 +23,14 @@ contract GenesisVisionPlatform {
     mapping (string => string) managerToBroker;
     IMap.iAddressUintMapping investorsManagers;    
 
+    StandardToken gvt;
+
     event NewBroker(string brokerName);
     event NewManager(string managerName, string brokerName);
 
-    function GenesisVisionPlatform() {
+    function GenesisVisionPlatform(address _gvt) {
         contractOwner = msg.sender;
+        gvt = StandardToken(_gvt);
     }
 
     function setGenesisVisionManager(address manager) {
@@ -57,8 +61,7 @@ contract GenesisVisionPlatform {
     function getManager(uint idx) genesisVisionManagerOnly returns (string, uint8, uint32) {
         uint arraySize = managers.size();
 
-        if (idx >= arraySize)
-        {
+        if (idx >= arraySize) {
             idx = arraySize - 1;
         }
         
@@ -76,6 +79,14 @@ contract GenesisVisionPlatform {
 
     function mintManagerTokens (string managerName, uint8 managerLevel) internal {
         managers.data[managerName].freeCoins += tokensPerLevel[managerLevel];
+    }
+
+    function invest (string managerName, uint amount) {
+        require(managers.contains(managerName));
+
+        if (gvt.transferFrom(msg.sender, this, amount)) {
+            managers.data[managerName].pendingCoins.insert(msg.sender, amount);
+        }
     }
 
     function() { 

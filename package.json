@@ -1,0 +1,8 @@
+{
+  "name": "platform-contracts",
+  "version": "1.0.0",
+  "description": "Genesis Vision platform smart contracts",
+  "dependencies": {
+    "zeppelin-solidity": "^1.2.0"
+  }
+}

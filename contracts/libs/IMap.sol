@@ -35,7 +35,7 @@ library IMap {
 
     function insert(iAddressUintMapping storage self, address key, uint value) internal returns (bool replaced) {
         entryAddressUint storage e = self.data[key];
-        e.value = value;
+        e.value += value;
         if (e.keyIndex > 0) {
             return true;
         } else {
