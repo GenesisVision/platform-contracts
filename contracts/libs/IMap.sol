@@ -44,4 +44,16 @@ library IMap {
             return false;
         }
     }
+
+    function size(iAddressUintMapping storage self) internal constant returns (uint) {
+        return self.keys.length;
+    }
+
+    function getValueByIndex(iAddressUintMapping storage self, uint idx) internal constant returns (uint) {
+        return self.data[self.keys[idx]].value;
+    }
+
+    function getKeyByIndex(iAddressUintMapping storage self, uint idx) internal constant returns (address) {
+        return self.keys[idx];
+    }
 }

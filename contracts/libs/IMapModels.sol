@@ -12,8 +12,8 @@ library IMapModels {
         Models.Manager storage e = self.data[key];
         e.name = key;
         e.level = level;
-        e.managementFee = managementFee;
-        e.successFee = successFee;
+        //e.managementFee = managementFee;
+        //e.successFee = successFee;
         if (e.keyIndex > 0) {
             return true;
         } else {
