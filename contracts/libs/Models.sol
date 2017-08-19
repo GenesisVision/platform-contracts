@@ -15,6 +15,7 @@ library Models {
         //string accountCurrency;
         uint8 tradingPeriod;
         uint64 nextClearing;
+        string ipfs;
         uint32 ownCoins;
         //uint pendingGVT;
         IMap.iAddressUintMapping investorsCoins;
