@@ -13,6 +13,7 @@ library Models {
         string accountCurrency;
         uint8 tradingPeriod;
         uint64 nextClearing;
+        string ipfs;
         IMap.iAddressUintMapping investorsCoins;
         IMap.iAddressUintMapping pendingCoins;
     }
