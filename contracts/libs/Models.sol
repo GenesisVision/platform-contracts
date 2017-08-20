@@ -19,6 +19,7 @@ library Models {
         uint32 ownCoins;
         //uint pendingGVT;
         IMap.iAddressUintMapping investorsCoins;
-        IMap.iAddressUintMapping pendingGVT;
+        IMap.iAddressUintMapping pendingCoins;
+        uint pendingGVT;
     }
 }

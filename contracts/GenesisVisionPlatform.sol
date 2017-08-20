@@ -32,6 +32,7 @@ contract GenesisVisionPlatform {
 
     event NewBroker(string brokerName);
     event NewManager(string managerName, string brokerName);
+    event NewInvestments(string managerName, uint amount);
 
     function GenesisVisionPlatform(address _gvt) {
         contractOwner = msg.sender;
@@ -92,28 +93,32 @@ contract GenesisVisionPlatform {
         //ToDo not enough spare tokens
         var manager = managers.data[managerName];
 
-        manager.freeCoins.sub(gvtAmount * centsPerGVT);
+        var coins = gvtAmount * centsPerGVT;
+
+        manager.freeCoins.sub(coins);
 
         if (gvt.transferFrom(msg.sender, this, gvtAmount)) {
-            manager.pendingGVT.insert(msg.sender, gvtAmount);
+            manager.pendingGVT += gvtAmount;
+            manager.pendingCoins.insert(coins);
         }
     }
 
     function finishPeriod(string managerName, uint32 profitCents) {
         require(brokers[managerToBroker[managerName]] == msg.sender);
 
+        var manager = managers.data[managerName];
+
         // 1. Distrubite profit
-        distributeProfit(managerName, profitCents);
+        distributeProfit(manager, profitCents);
         // 2. Execute withdrawal requests
         // 3. Execute deposit requets
+        executeInvestorRequests(manager);
         // 4. Check for levelup
         
     }
 
-    function distributeProfit(string managerName, uint32 profitCents) internal {
+    function distributeProfit(Models.Manager storage manager, uint32 profitCents) internal {
         // ToDo: Calculate commissions
-        var manager = managers.data[managerName];
-
         uint32 investorsCoins = tokensPerLevel[manager.level] - manager.freeCoins;
         uint32 totalCoins = investorsCoins + manager.ownCoins;
 
@@ -128,7 +133,6 @@ contract GenesisVisionPlatform {
         require(gvt.transferFrom(msg.sender, this, investorsProfitInGVT));
 
         for (uint i = 0; i < manager.investorsCoins.size(); i++) {
-        //for (uint i = 0; i < managers.data[managerName].investorsCoins.size(); i++) {
             address investorAddress = manager.investorsCoins.getKeyByIndex(i);
             uint investorCoins = manager.investorsCoins.getValueByIndex(i);
 
@@ -137,6 +141,21 @@ contract GenesisVisionPlatform {
 
             gvt.approve(investorAddress, investorProfitGVT);
         }
+    }
+
+    function executeInvestorRequests(Models.Manager storage manager) internal {
+        for (uint i = 0; i < manager.pendingCoins.size(); i++) {
+            address investorAddress = manager.pendingCoins.getKeyByIndex(i);
+            uint investorCoins = manager.pendingCoins.getValueByIndex(i);
+
+            manager.investorsCoins.insert(investorAddress, investorCoins);            
+        }
+
+        gvt.approve(brokers[managerToBroker[manager.name]], manager.pendingGVT);
+        manager.pandingGVT = 0;
+        manager.pendingCoins.clear();
+
+        NewInvestments(manager.name, manager.pendingGVT);
     }
 
     function() { 
