@@ -19,6 +19,8 @@ contract GenesisVisionPlatform {
 
     event NewBroker(string brokerName);
     event NewManager(string managerName, string brokerName);
+    event ManagerUpdated(string managerName);
+    
 
     function GenesisVisionPlatform() {
         contractOwner = msg.sender;
@@ -48,6 +50,7 @@ contract GenesisVisionPlatform {
 
     function updateIpfsHash(string managerName, string ipfs) {
         managers[managerName].ipfs = ipfs;
+        ManagerUpdated(managerName);
     }
 
     function() { 
