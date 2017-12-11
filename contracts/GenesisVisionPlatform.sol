@@ -6,21 +6,20 @@ import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 
 contract GenesisVisionPlatform {
 
-    modifier genesisVisionManagerOnly {
-        require(msg.sender == genesisVisionManager);
-        _;
-    }
-
     address contractOwner;
     address genesisVisionManager;
 
     mapping (string => address) brokers;
     mapping (string => Models.Manager) managers;
 
-    event NewBroker(string brokerName);
-    event NewManager(string managerName, string brokerName);
-    event ManagerUpdated(string managerName);
+    event NewBroker(string brokerId);
+    event NewManager(string managerId, string brokerId);
+    event ManagerUpdated(string managerId);
     
+    modifier genesisVisionManagerOnly() {
+        require(msg.sender == genesisVisionManager);
+        _;
+    }
 
     function GenesisVisionPlatform() {
         contractOwner = msg.sender;
@@ -28,32 +27,39 @@ contract GenesisVisionPlatform {
 
     function setGenesisVisionManager(address manager) {
         require(msg.sender == contractOwner);
+
         genesisVisionManager = manager;
     }
 
-    function registerBroker (string brokerName, address brokerContract) genesisVisionManagerOnly {
-        require(brokers[brokerName] == 0);
+    function registerBroker (string brokerId, address brokerContract) genesisVisionManagerOnly {
+        require(brokers[brokerId] == 0);
 
-        brokers[brokerName] = brokerContract;
+        brokers[brokerId] = brokerContract;
+        NewBroker(brokerId);
     }
 
-    function getBrokerAddress(string brokerName) genesisVisionManagerOnly returns (address) {
-        return brokers[brokerName];
+    function registerManager(string managerId, string managerLogin, string brokerId, uint8 managementFee, uint8 successFee) genesisVisionManagerOnly {   
+        require(brokers[brokerId] == msg.sender);
+
+        Models.Manager memory manager = Models.Manager(managerId, managerLogin, 1, "");
+        managers[managerId] = manager;
+        NewManager(managerId, brokerId);
     }
 
-    function registerManager(string managerName, string brokerName, uint8 managementFee, uint8 successFee) genesisVisionManagerOnly {   
-        require(brokers[brokerName] == msg.sender);
-
-        Models.Manager memory manager = Models.Manager(managerName, 1, "");
-        managers[managerName] = manager;
+    function getBrokerAddress(string brokerId) genesisVisionManagerOnly constant returns (address) {
+        return brokers[brokerId];
     }
 
-    function updateIpfsHash(string managerName, string ipfs) {
-        managers[managerName].ipfs = ipfs;
-        ManagerUpdated(managerName);
+    function updateManagerHistoryIpfsHash(string managerId, string ipfsHash) {
+        managers[managerId].ipfsHash = ipfsHash;
+        ManagerUpdated(managerId);
     }
 
-    function() { 
-        throw;
+    function getManagerHistoryIpfsHash(string managerId) constant returns (string) {
+        return managers[managerId].ipfsHash;
+    }
+
+    function getManagerLogin(string managerId) constant returns (string) {
+        return managers[managerId].login;
     }
 }

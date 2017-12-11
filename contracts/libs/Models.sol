@@ -3,8 +3,9 @@ pragma solidity ^0.4.13;
 library Models {
     
     struct Manager {
-        string name;
+        string id;
+        string login;
         uint8 level;
-        string ipfs;
+        string ipfsHash;
     }
 }
