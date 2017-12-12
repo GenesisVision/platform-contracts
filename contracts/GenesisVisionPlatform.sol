@@ -71,6 +71,10 @@ contract GenesisVisionPlatform {
         return (managers[managerId].id, managers[managerId].brokerId, managers[managerId].login, managers[managerId].ipfsHash);
     }
 
+    function getManagerLogin(string managerId) constant returns (string) {
+        return managers[managerId].login;
+    }
+
     function getManagerHistoryIpfsHash(string managerId) constant returns (string) {
         return managers[managerId].ipfsHash;
     }
