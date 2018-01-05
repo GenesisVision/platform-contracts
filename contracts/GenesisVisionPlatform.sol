@@ -1,11 +1,13 @@
 pragma solidity ^0.4.13;
 
 import "./libs/Models.sol";
+import "./ManagerToken.sol";
 
 contract GenesisVisionPlatform {
 
     address contractOwner;
     address genesisVisionAdmin;
+    address initialTokensHolder;
 
     mapping (string => Models.Broker) brokers;
     mapping (string => Models.Manager) managers;
@@ -42,6 +44,10 @@ contract GenesisVisionPlatform {
         genesisVisionAdmin = admin;
     }
 
+    function setInitialTokensHolder(address holder) gvAdminOnly {
+        initialTokensHolder = holder;
+    }
+
     function registerBroker (string brokerId, address brokerContract, string name, string host) gvAdminOnly {
         require(brokers[brokerId].brokerContract == 0);
 
@@ -50,10 +56,11 @@ contract GenesisVisionPlatform {
         NewBroker(brokerId,brokerContract);
     }
 
-    function registerManager(string managerId, string managerLogin, string brokerId, uint8 managementFee, uint8 successFee) brokerOrGvAdminByBrokerOnly(brokerId) {
+    function registerManager(string tokenName, string tokenSymbol, string managerId, string managerLogin, string brokerId, uint8 managementFee, uint8 successFee) brokerOrGvAdminByBrokerOnly(brokerId) {
         require(managers[managerId].isEntity == false);
 
-        Models.Manager memory manager = Models.Manager(managerId, brokerId, managerLogin, "", true);
+        var managerToken = new ManagerToken(tokenName, tokenSymbol, initialTokensHolder);
+        Models.Manager memory manager = Models.Manager(managerToken, managerId, brokerId, managerLogin, "", true);
         managers[managerId] = manager;
         NewManager(managerId, brokerId);
     }
