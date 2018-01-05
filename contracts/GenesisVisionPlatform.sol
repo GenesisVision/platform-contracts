@@ -58,6 +58,7 @@ contract GenesisVisionPlatform {
 
     function registerManager(string tokenName, string tokenSymbol, string managerId, string managerLogin, string brokerId, uint8 managementFee, uint8 successFee) brokerOrGvAdminByBrokerOnly(brokerId) {
         require(managers[managerId].isEntity == false);
+        require(initialTokensHolder != address(0));
 
         var managerToken = new ManagerToken(tokenName, tokenSymbol, initialTokensHolder);
         Models.Manager memory manager = Models.Manager(managerToken, managerId, brokerId, managerLogin, "", true);
