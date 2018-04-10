@@ -10,17 +10,26 @@ contract ManagerToken is StandardToken {
     uint   public constant decimals = 18;
     uint   public tokenLimit; 
 
+    address gvPlatform;
+
     // Constructor
-    function ManagerToken(string tokenName, string tokenSymbol, address initialHolder) {
+    function ManagerToken(address _gvPlatform, string tokenName, string tokenSymbol) {
+        require(gvPlatform != 0);
+        gvPlatform = _gvPlatform;
         name = tokenName;
         symbol = tokenSymbol;
-        balances[initialHolder] = 1000;
         tokenLimit = 1000;
     }
 
-    function changeLimit(uint newLimit, address holderForNewTokens) {
-        var tokens = newLimit - tokenLimit;
+    function changeLimit(uint newLimit) {
+        require(newLimit > tokenLimit);
         tokenLimit = newLimit;
-        balances[holderForNewTokens] = tokens;
     }
+
+    function mint(address holder, uint amount) {
+        require(msg.sender == gvPlatform);
+        require(totalSupply + amount <= tokenLimit);
+        balances[holder] += amount;
+    }
+
 }

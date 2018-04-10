@@ -2,13 +2,11 @@ pragma solidity ^0.4.13;
 
 library Models {
     
-    struct Manager {
+    struct InvestmentProgram {
         address token;
         string id;
         string brokerId;
-        string login;
         string ipfsHash;
-        bool isEntity;
     }
 
     struct Broker {

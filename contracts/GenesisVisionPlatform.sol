@@ -7,14 +7,13 @@ contract GenesisVisionPlatform {
 
     address contractOwner;
     address genesisVisionAdmin;
-    address initialTokensHolder;
 
     mapping (string => Models.Broker) brokers;
-    mapping (string => Models.Manager) managers;
+    mapping (string => Models.InvestmentProgram) investmentPrograms;
 
     event NewBroker(string brokerId, address brokerContract);
-    event NewManager(string managerId, string brokerId);
-    event ManagerUpdated(string managerId);
+    event NewInvestmentProgram(string investmentProgramId, string brokerId);
+    event InvestmentProgramUpdated(string investmentProgramId);
     
     modifier ownerOnly() {
         require(msg.sender == contractOwner);
@@ -31,8 +30,8 @@ contract GenesisVisionPlatform {
         _;
     }
     
-    modifier brokerOrGvAdminByManagerOnly(string managerId) {
-        require(msg.sender == genesisVisionAdmin || msg.sender == contractOwner || brokers[managers[managerId].brokerId].brokerContract == msg.sender);
+    modifier brokerOrGvAdminByManagerOnly(string investmentProgramId) {
+        require(msg.sender == genesisVisionAdmin || msg.sender == contractOwner || brokers[investmentPrograms[investmentProgramId].brokerId].brokerContract == msg.sender);
         _;
     }
 
@@ -44,46 +43,36 @@ contract GenesisVisionPlatform {
         genesisVisionAdmin = admin;
     }
 
-    function setInitialTokensHolder(address holder) gvAdminOnly {
-        initialTokensHolder = holder;
-    }
-
     function registerBroker (string brokerId, address brokerContract, string name, string host) gvAdminOnly {
         require(brokers[brokerId].brokerContract == 0);
 
         Models.Broker memory broker = Models.Broker(brokerContract, brokerId, name, host);
         brokers[brokerId] = broker;
-        NewBroker(brokerId,brokerContract);
+        emit NewBroker(brokerId,brokerContract);
     }
 
-    function registerManager(string tokenName, string tokenSymbol, string managerId, string managerLogin, string brokerId, uint8 managementFee, uint8 successFee) brokerOrGvAdminByBrokerOnly(brokerId) {
-        require(managers[managerId].isEntity == false);
-        require(initialTokensHolder != address(0));
+    function createInvestmentProgram(string tokenName, string tokenSymbol, string programId, string brokerId, uint8 managementFee, uint8 successFee) brokerOrGvAdminByBrokerOnly(brokerId) {
 
-        var managerToken = new ManagerToken(tokenName, tokenSymbol, initialTokensHolder);
-        Models.Manager memory manager = Models.Manager(managerToken, managerId, brokerId, managerLogin, "", true);
-        managers[managerId] = manager;
-        NewManager(managerId, brokerId);
+        var managerToken = new ManagerToken(this, tokenName, tokenSymbol);
+        Models.InvestmentProgram memory program = Models.InvestmentProgram(managerToken, programId, brokerId, "");
+        investmentPrograms[programId] = program;
+        emit NewInvestmentProgram(programId, brokerId);
     }
 
-    function updateManagerHistoryIpfsHash(string managerId, string ipfsHash) brokerOrGvAdminByManagerOnly(managerId) {
-        managers[managerId].ipfsHash = ipfsHash;
-        ManagerUpdated(managerId);
+    function updateManagerHistoryIpfsHash(string programId, string ipfsHash) brokerOrGvAdminByManagerOnly(programId) {
+        investmentPrograms[programId].ipfsHash = ipfsHash;
+        emit InvestmentProgramUpdated(programId);
     }
 
     function getBroker(string brokerId) constant returns (address, string, string, string) {
         return (brokers[brokerId].brokerContract, brokers[brokerId].id, brokers[brokerId].name, brokers[brokerId].host);
     }
 
-    function getManager(string managerId) constant returns (string, string, string, string) {
-        return (managers[managerId].id, managers[managerId].brokerId, managers[managerId].login, managers[managerId].ipfsHash);
+    function getManager(string programId) constant returns (string, string, string) {
+        return (investmentPrograms[programId].id, investmentPrograms[programId].brokerId, investmentPrograms[programId].ipfsHash);
     }
 
-    function getManagerLogin(string managerId) constant returns (string) {
-        return managers[managerId].login;
-    }
-
-    function getManagerHistoryIpfsHash(string managerId) constant returns (string) {
-        return managers[managerId].ipfsHash;
+    function getManagerHistoryIpfsHash(string programId) constant returns (string) {
+        return investmentPrograms[programId].ipfsHash;
     }
 }
