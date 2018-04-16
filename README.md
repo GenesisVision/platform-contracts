@@ -15,4 +15,4 @@ You can run `truffle compile`, `truffle migrate` and `truffle test` to compile y
 
 ### License
 
-LGPLv3
+[LGPLv3](https://github.com/GenesisVision/platform-contracts/blob/master/LICENSE)
