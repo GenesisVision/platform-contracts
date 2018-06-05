@@ -1,6 +1,6 @@
 pragma solidity ^0.4.13;
 
-import 'zeppelin-solidity/contracts/token/StandardToken.sol';
+import '../node_modules/zeppelin-solidity/contracts/token/StandardToken.sol';
 
 contract ManagerToken is StandardToken {
     
@@ -17,7 +17,7 @@ contract ManagerToken is StandardToken {
     }
 
     // Constructor
-    function ManagerToken(address _gvPlatform, string tokenName, string tokenSymbol) {
+    function ManagerToken(address _gvPlatform, string tokenName, string tokenSymbol) public{
         require(_gvPlatform != 0);
         gvPlatform = _gvPlatform;
         name = tokenName;
@@ -26,12 +26,12 @@ contract ManagerToken is StandardToken {
         balances[gvPlatform] = startTotalSupply;
     }
 
-    function raiseLimit(uint256 tokenCount) gvPlatformOnly() {
+    function raiseLimit(uint256 tokenCount) public gvPlatformOnly() {
         totalSupply += tokenCount;
         balances[gvPlatform] += tokenCount;
     }
 
-    function setStartTotalSupply(uint256 newStartTotalSupple) gvPlatformOnly() {
+    function setStartTotalSupply(uint256 newStartTotalSupple) public gvPlatformOnly() {
         startTotalSupply = newStartTotalSupple;
     }
 

@@ -27,26 +27,25 @@ contract GenesisVisionPlatform {
         _;
     }
     
-
-    function GenesisVisionPlatform() {
+    function GenesisVisionPlatform() public {
         contractOwner = msg.sender;
     }
 
-    function setGenesisVisionAdmin(address admin) ownerOnly {
+    function setGenesisVisionAdmin(address admin) public ownerOnly {
         genesisVisionAdmin = admin;
     }
 
-    function registerExchange(string id, string name, string host) gvAdminAndOwnerOnly() {
+    function registerExchange(string id, string name, string host) public gvAdminAndOwnerOnly() {
         require(bytes(exchanges[id].id).length == 0);
         exchanges[id] = Models.Exchange(id, name, host);
         emit NewExchange(id);
     }
 
-    function getExchange(string exchangeId) constant returns (string, string, string) {
+    function getExchange(string exchangeId) public constant returns (string, string, string) {
         return (exchanges[exchangeId].id, exchanges[exchangeId].name, exchanges[exchangeId].host);
     }
 
-    function createInvestmentProgram(string tokenName, string tokenSymbol, string id, string exchangeId, string ipfsHash) gvAdminAndOwnerOnly() {
+    function createInvestmentProgram(string tokenName, string tokenSymbol, string id, string exchangeId, string ipfsHash) public gvAdminAndOwnerOnly() {
         require(bytes(investmentPrograms[id].id).length == 0);
         require(bytes(exchanges[exchangeId].id).length != 0);
         address managerToken = new ManagerToken(this, tokenName, tokenSymbol);
@@ -54,11 +53,11 @@ contract GenesisVisionPlatform {
         emit NewInvestmentProgram(id, exchangeId);
     }
 
-    function getInvestmentProgram(string programId) constant returns (address, string, string, string, uint256) {
+    function getInvestmentProgram(string programId) public constant returns (address, string, string, string, uint256) {
         return (investmentPrograms[programId].token, investmentPrograms[programId].id , investmentPrograms[programId].exchangeId, investmentPrograms[programId].ipfsHash, investmentPrograms[programId].level);
     }
 
-    function raiseLevelInvestmentProgram(string programId, uint256 tokenCount) {
+    function raiseLevelInvestmentProgram(string programId, uint256 tokenCount) public{
         ManagerToken managerToken = ManagerToken(investmentPrograms[programId].token);
         managerToken.raiseLimit(tokenCount);
         investmentPrograms[programId].level += 1;
