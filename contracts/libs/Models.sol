@@ -5,12 +5,12 @@ library Models {
     struct InvestmentProgram {
         address token;
         string id;
-        string brokerId;
+        string exchangeId;
         string ipfsHash;
+        uint level;
     }
 
-    struct Broker {
-        address brokerContract;
+    struct Exchange {
         string id;
         string name;
         string host;

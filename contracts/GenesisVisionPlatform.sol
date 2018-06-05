@@ -5,35 +5,28 @@ import "./ManagerToken.sol";
 
 contract GenesisVisionPlatform {
 
+    uint256 constant startLevel = 1;
     address contractOwner;
     address genesisVisionAdmin;
 
-    mapping (string => Models.Broker) brokers;
+    mapping (string => Models.Exchange) exchanges;
     mapping (string => Models.InvestmentProgram) investmentPrograms;
 
-    event NewBroker(string brokerId, address brokerContract);
-    event NewInvestmentProgram(string investmentProgramId, string brokerId);
+    event NewExchange(string exchangeId);
+    event NewInvestmentProgram(string investmentProgramId, string exchangeId);
     event InvestmentProgramUpdated(string investmentProgramId);
-    
+    event InvestmentProgramLevelRaised(string programId);
+
     modifier ownerOnly() {
         require(msg.sender == contractOwner);
         _;
     }
 
-    modifier gvAdminOnly() {
+    modifier gvAdminAndOwnerOnly() {
         require(msg.sender == genesisVisionAdmin || msg.sender == contractOwner);
         _;
     }
     
-    modifier brokerOrGvAdminByBrokerOnly(string brokerId) {
-        require(msg.sender == genesisVisionAdmin || msg.sender == contractOwner || brokers[brokerId].brokerContract == msg.sender);
-        _;
-    }
-    
-    modifier brokerOrGvAdminByManagerOnly(string investmentProgramId) {
-        require(msg.sender == genesisVisionAdmin || msg.sender == contractOwner || brokers[investmentPrograms[investmentProgramId].brokerId].brokerContract == msg.sender);
-        _;
-    }
 
     function GenesisVisionPlatform() {
         contractOwner = msg.sender;
@@ -43,36 +36,39 @@ contract GenesisVisionPlatform {
         genesisVisionAdmin = admin;
     }
 
-    function registerBroker (string brokerId, address brokerContract, string name, string host) gvAdminOnly {
-        require(brokers[brokerId].brokerContract == 0);
-
-        Models.Broker memory broker = Models.Broker(brokerContract, brokerId, name, host);
-        brokers[brokerId] = broker;
-        emit NewBroker(brokerId,brokerContract);
+    function registerExchange(string id, string name, string host) gvAdminAndOwnerOnly() {
+        require(bytes(exchanges[id].id).length == 0);
+        exchanges[id] = Models.Exchange(id, name, host);
+        emit NewExchange(id);
     }
 
-    function createInvestmentProgram(string tokenName, string tokenSymbol, string programId, string brokerId, uint8 managementFee, uint8 successFee) brokerOrGvAdminByBrokerOnly(brokerId) {
-
-        var managerToken = new ManagerToken(this, tokenName, tokenSymbol);
-        Models.InvestmentProgram memory program = Models.InvestmentProgram(managerToken, programId, brokerId, "");
-        investmentPrograms[programId] = program;
-        emit NewInvestmentProgram(programId, brokerId);
+    function getExchange(string exchangeId) constant returns (string, string, string) {
+        return (exchanges[exchangeId].id, exchanges[exchangeId].name, exchanges[exchangeId].host);
     }
 
-    function updateManagerHistoryIpfsHash(string programId, string ipfsHash) brokerOrGvAdminByManagerOnly(programId) {
+    function createInvestmentProgram(string tokenName, string tokenSymbol, string id, string exchangeId, string ipfsHash) gvAdminAndOwnerOnly() {
+        require(bytes(investmentPrograms[id].id).length == 0);
+        require(bytes(exchanges[exchangeId].id).length != 0);
+        address managerToken = new ManagerToken(this, tokenName, tokenSymbol);
+        investmentPrograms[id] = Models.InvestmentProgram(managerToken, id, exchangeId, ipfsHash, startLevel);
+        emit NewInvestmentProgram(id, exchangeId);
+    }
+
+    function getInvestmentProgram(string programId) constant returns (address, string, string, string, uint256) {
+        return (investmentPrograms[programId].token, investmentPrograms[programId].id , investmentPrograms[programId].exchangeId, investmentPrograms[programId].ipfsHash, investmentPrograms[programId].level);
+    }
+
+    function raiseLevelInvestmentProgram(string programId, uint256 tokenCount) {
+        ManagerToken managerToken = ManagerToken(investmentPrograms[programId].token);
+        managerToken.raiseLimit(tokenCount);
+        investmentPrograms[programId].level += 1;
+        emit InvestmentProgramLevelRaised(programId);
+    }
+
+    function updateInvestmentProgramHistoryIpfsHash(string programId, string ipfsHash) gvAdminAndOwnerOnly() {
         investmentPrograms[programId].ipfsHash = ipfsHash;
         emit InvestmentProgramUpdated(programId);
     }
 
-    function getBroker(string brokerId) constant returns (address, string, string, string) {
-        return (brokers[brokerId].brokerContract, brokers[brokerId].id, brokers[brokerId].name, brokers[brokerId].host);
-    }
-
-    function getManager(string programId) constant returns (string, string, string) {
-        return (investmentPrograms[programId].id, investmentPrograms[programId].brokerId, investmentPrograms[programId].ipfsHash);
-    }
-
-    function getManagerHistoryIpfsHash(string programId) constant returns (string) {
-        return investmentPrograms[programId].ipfsHash;
-    }
-}
+} 
+  
