@@ -71,7 +71,7 @@ contract GenesisVisionPlatform {
 
     function transferManagerToken(string programId, address receiver, uint256 tokenCount) public gvAdminAndOwnerOnly() {
         ManagerToken managerToken = ManagerToken(investmentPrograms[programId].token);
-        managerToken.transfer(receiver,tokenCount);
+        require(managerToken.transfer(receiver,tokenCount) == true);
     }
 
 } 

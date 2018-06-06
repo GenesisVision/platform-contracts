@@ -27,7 +27,7 @@ contract("GenesisVisionPlatform", function (accounts) {
     });
 
     it("should not register Exchange with the same id", (done) => {
-            var a =  platform.registerExchange("exchange1", "").catch(function(error) { 
+            platform.registerExchange("exchange1", "").catch(function(error) { 
                 if(error.message == "VM Exception while processing transaction: revert"){
                     done();
                 }else {
@@ -46,21 +46,21 @@ contract("GenesisVisionPlatform", function (accounts) {
             }  
         });
     });
-    var tokenAddress;
-    it("should register investment program", (done) => {
-        platform.createInvestmentProgram("Elshan", "ELS", "idInvestmentProgram1", "exchange1", "ipfsHash")
+
+
+    it("should register investment program", () => {
+        return platform.createInvestmentProgram("Elshan", "ELS", "idInvestmentProgram1", "exchange1", "ipfsHash")
             .then(() => {
                 return platform.getInvestmentProgram.call("idInvestmentProgram1");
             })
             .then((investmentProgram) => {
+                investmentProgram[0];
                 assert.equal("idInvestmentProgram1", investmentProgram[1], "investment program exist");
-                tokenAddress = investmentProgram[0];
-                done(tokenAddress);
             });
     });
 
     it("should not register investment program with the same id", (done) => {
-        var a =  platform.createInvestmentProgram("Elshan", "ELS", "idInvestmentProgram1", "exchange1", "ipfsHash").catch(function(error) { 
+        platform.createInvestmentProgram("Elshan", "ELS", "idInvestmentProgram1", "exchange1", "ipfsHash").catch(function(error) { 
             if(error.message == "VM Exception while processing transaction: revert"){
                 done();
             }else {
@@ -89,10 +89,25 @@ contract("GenesisVisionPlatform", function (accounts) {
             });
     });
 
-    it("should transfer manager token" + "Address:" + tokenAddress, () => {
-        return platform.transferManagerToken("idInvestmentProgram1",address[1], 10)
-            .then(() => {
-                return ManagerToken.At(tokenAddress).balanceOf.call(address[1]);
+    it("should balance platform in ManagerToken idInvestmentProgram1 == 2000", () => {
+        platform.getInvestmentProgram.call("idInvestmentProgram1").then((investmentProgram) => {
+            return investmentProgram[0];
+         })
+        .then((tokenAddress) => {
+            return ManagerToken.at(tokenAddress).balanceOf.call(platform.address);
+        })
+        .then((balance) => {
+            assert.equal(2000, Number(balance), "Balance == 2000");
+        });
+    });
+
+    it("should transfer manager token", () => {
+        platform.getInvestmentProgram.call("idInvestmentProgram1").then((investmentProgram) => {
+                platform.transferManagerToken("idInvestmentProgram1",accounts[1], 10);
+                return investmentProgram[0];
+             })
+            .then((tokenAddress) => {
+                return ManagerToken.at(tokenAddress).balanceOf.call(accounts[1]);
             })
             .then((balance) => {
                 assert.equal(10, balance, "Tokens transferred");

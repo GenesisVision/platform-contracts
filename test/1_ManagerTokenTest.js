@@ -6,7 +6,6 @@ contract("ManagerToken", function (accounts) {
     var token;
 
     before('setup', (done) => {
-        ManagerToken.
         ManagerToken.deployed().then(function(_token) {
             token = _token
         }).then(() => {
