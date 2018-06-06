@@ -13,6 +13,5 @@ library Models {
     struct Exchange {
         string id;
         string name;
-        string host;
     }
 }

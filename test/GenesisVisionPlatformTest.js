@@ -1,5 +1,5 @@
 var GenesisVisionPlatform = artifacts.require("./GenesisVisionPlatform.sol");
-
+var ManagerToken = artifacts.require("./ManagerToken.sol");
 
 
 contract("GenesisVisionPlatform", function (accounts) {
@@ -17,7 +17,7 @@ contract("GenesisVisionPlatform", function (accounts) {
     });
     // Exchange
     it("should register Exchange", () => {
-        return platform.registerExchange("exchange1", "asd","host")
+        return platform.registerExchange("exchange1", "asd")
             .then(() => {
                 return platform.getExchange.call("exchange1");
             })
@@ -27,7 +27,7 @@ contract("GenesisVisionPlatform", function (accounts) {
     });
 
     it("should not register Exchange with the same id", (done) => {
-            var a =  platform.registerExchange("exchange1", "","").catch(function(error) { 
+            var a =  platform.registerExchange("exchange1", "").catch(function(error) { 
                 if(error.message == "VM Exception while processing transaction: revert"){
                     done();
                 }else {
@@ -46,14 +46,16 @@ contract("GenesisVisionPlatform", function (accounts) {
             }  
         });
     });
-
-    it("should register investment program", () => {
-        return platform.createInvestmentProgram("Elshan", "ELS", "idInvestmentProgram1", "exchange1", "ipfsHash")
+    var tokenAddress;
+    it("should register investment program", (done) => {
+        platform.createInvestmentProgram("Elshan", "ELS", "idInvestmentProgram1", "exchange1", "ipfsHash")
             .then(() => {
                 return platform.getInvestmentProgram.call("idInvestmentProgram1");
             })
             .then((investmentProgram) => {
-                assert.equal("idInvestmentProgram1", investmentProgram[1], "Broker investment program exist");
+                assert.equal("idInvestmentProgram1", investmentProgram[1], "investment program exist");
+                tokenAddress = investmentProgram[0];
+                done(tokenAddress);
             });
     });
 
@@ -87,4 +89,13 @@ contract("GenesisVisionPlatform", function (accounts) {
             });
     });
 
+    it("should transfer manager token" + "Address:" + tokenAddress, () => {
+        return platform.transferManagerToken("idInvestmentProgram1",address[1], 10)
+            .then(() => {
+                return ManagerToken.At(tokenAddress).balanceOf.call(address[1]);
+            })
+            .then((balance) => {
+                assert.equal(10, balance, "Tokens transferred");
+            });
+    });
 });
