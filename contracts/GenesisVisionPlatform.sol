@@ -11,10 +11,10 @@ contract GenesisVisionPlatform {
 
     mapping (string => Models.Exchange) exchanges;
     mapping (string => Models.InvestmentProgram) investmentPrograms;
+    mapping (string => string) managerIpfsHashes;
 
     event NewExchange(string exchangeId);
     event NewInvestmentProgram(string investmentProgramId, string exchangeId);
-    event InvestmentProgramUpdated(string investmentProgramId);
     event InvestmentProgramLevelRaised(string programId);
 
     modifier ownerOnly() {
@@ -24,6 +24,11 @@ contract GenesisVisionPlatform {
 
     modifier gvAdminAndOwnerOnly() {
         require(msg.sender == genesisVisionAdmin || msg.sender == contractOwner);
+        _;
+    }
+
+    modifier investmentProgramNotFinished(string investmentId) {
+        require(investmentPrograms[investmentId].isFinished == false);
         _;
     }
     
@@ -41,20 +46,29 @@ contract GenesisVisionPlatform {
         emit NewExchange(id);
     }
 
-    function getExchange(string exchangeId) public constant returns (string, string) {
+    function getExchange(string exchangeId) public constant returns (string id, string name) {
         return (exchanges[exchangeId].id, exchanges[exchangeId].name);
     }
-
-    function createInvestmentProgram(string tokenName, string tokenSymbol, string id, string exchangeId, string ipfsHash) public gvAdminAndOwnerOnly() {
+    
+    function createInvestmentProgram(string tokenName, string tokenSymbol, string id, string exchangeId, string managerId) public gvAdminAndOwnerOnly() {
         require(bytes(investmentPrograms[id].id).length == 0);
         require(bytes(exchanges[exchangeId].id).length != 0);
         address managerToken = new ManagerToken(this, tokenName, tokenSymbol);
-        investmentPrograms[id] = Models.InvestmentProgram(managerToken, id, exchangeId, ipfsHash, startLevel);
+        investmentPrograms[id] = Models.InvestmentProgram(managerToken, id, exchangeId, startLevel, managerId, false);
         emit NewInvestmentProgram(id, exchangeId);
     }
 
-    function getInvestmentProgram(string programId) public constant returns (address, string, string, string, uint256) {
-        return (investmentPrograms[programId].token, investmentPrograms[programId].id , investmentPrograms[programId].exchangeId, investmentPrograms[programId].ipfsHash, investmentPrograms[programId].level);
+    function finishInvestmentProgram(string programId) public gvAdminAndOwnerOnly() {
+        investmentPrograms[programId].isFinished = true;
+    }
+
+    function getInvestmentProgram(string programId) public constant returns (address token, string id, string exchangeId, string managerId, uint256 level, bool isFinished) {
+        return (investmentPrograms[programId].token, 
+            investmentPrograms[programId].id, 
+            investmentPrograms[programId].exchangeId,  
+            investmentPrograms[programId].managerId, 
+            investmentPrograms[programId].level, 
+            investmentPrograms[programId].isFinished);
     }
 
     function raiseLevelInvestmentProgram(string programId, uint256 tokenCount) public{
@@ -64,9 +78,12 @@ contract GenesisVisionPlatform {
         emit InvestmentProgramLevelRaised(programId);
     }
 
-    function updateInvestmentProgramHistoryIpfsHash(string programId, string ipfsHash) public gvAdminAndOwnerOnly() {
-        investmentPrograms[programId].ipfsHash = ipfsHash;
-        emit InvestmentProgramUpdated(programId);
+    function updateManagerIpfsHash(string managerId, string ipfsHash) public gvAdminAndOwnerOnly() {
+        managerIpfsHashes[managerId] = ipfsHash;
+    }
+
+    function getManagerIpfsHash(string managerId) public constant returns (string ipfsHash) {
+        return managerIpfsHashes[managerId];
     }
 
     function transferManagerToken(string programId, address receiver, uint256 tokenCount) public gvAdminAndOwnerOnly() {

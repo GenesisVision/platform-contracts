@@ -15,7 +15,7 @@ contract("GenesisVisionPlatform", function (accounts) {
             done();
         });
     });
-    // Exchange
+    //region Exchange
     it("should register Exchange", () => {
         return platform.registerExchange("exchange1", "asd")
             .then(() => {
@@ -35,10 +35,11 @@ contract("GenesisVisionPlatform", function (accounts) {
                 }  
             });
     });
-
-    // Investment
+    //#endregion
+    
+    //#region Investment
     it("should not register investment program with the exchange not found", (done) => {
-        platform.createInvestmentProgram("Elshan", "ELS", "idInvestmentProgram1", "asdasd", "ipfsHash").catch(function(error) { 
+        platform.createInvestmentProgram("Elshan", "ELS", "idInvestmentProgram1", "asdasd", "managerId").catch(function(error) { 
             if(error.message == "VM Exception while processing transaction: revert"){
                 done();
             }else {
@@ -49,7 +50,7 @@ contract("GenesisVisionPlatform", function (accounts) {
 
 
     it("should register investment program", () => {
-        return platform.createInvestmentProgram("Elshan", "ELS", "idInvestmentProgram1", "exchange1", "ipfsHash")
+        return platform.createInvestmentProgram("Elshan", "ELS", "idInvestmentProgram1", "exchange1", "managerId")
             .then(() => {
                 return platform.getInvestmentProgram.call("idInvestmentProgram1");
             })
@@ -60,7 +61,7 @@ contract("GenesisVisionPlatform", function (accounts) {
     });
 
     it("should not register investment program with the same id", (done) => {
-        platform.createInvestmentProgram("Elshan", "ELS", "idInvestmentProgram1", "exchange1", "ipfsHash").catch(function(error) { 
+        platform.createInvestmentProgram("Elshan", "ELS", "idInvestmentProgram1", "exchange1", "managerId").catch(function(error) { 
             if(error.message == "VM Exception while processing transaction: revert"){
                 done();
             }else {
@@ -79,16 +80,20 @@ contract("GenesisVisionPlatform", function (accounts) {
             });
     });
 
-    it("should update Investment Program History IpfsHash", () => {
-        return platform.updateInvestmentProgramHistoryIpfsHash("idInvestmentProgram1", "NewHash")
+    it("should finish investment program", () => {
+        return platform.finishInvestmentProgram("idInvestmentProgram1")
             .then(() => {
                 return platform.getInvestmentProgram.call("idInvestmentProgram1");
             })
             .then((investmentProgram) => {
-                assert.equal("NewHash", investmentProgram[3], "Investment program IpfsHash Updated");
+                assert.equal(true, investmentProgram[5], "Investment program finished");
             });
     });
 
+    //#endregion
+    
+    //#region Manager Token 
+    
     it("should balance platform in ManagerToken idInvestmentProgram1 == 2000", () => {
         platform.getInvestmentProgram.call("idInvestmentProgram1").then((investmentProgram) => {
             return investmentProgram[0];
@@ -113,4 +118,20 @@ contract("GenesisVisionPlatform", function (accounts) {
                 assert.equal(10, balance, "Tokens transferred");
             });
     });
+
+    //#endregion
+    
+    //#region Manager 
+    it("should update Manager IpfsHash", () => {
+        return platform.updateManagerIpfsHash("managerId", "NewHash")
+            .then(() => {
+                return platform.getManagerIpfsHash.call("managerId");
+            })
+            .then((manager) => {
+                assert.equal("NewHash", manager, "Investment program IpfsHash Updated");
+            });
+    });
+    //#endregion
+
+    
 });
