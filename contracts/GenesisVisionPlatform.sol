@@ -8,10 +8,10 @@ contract GenesisVisionPlatform {
     uint256 constant startLevel = 1;
     address contractOwner;
     address genesisVisionAdmin;
+    string public ipfsHash;
 
     mapping (string => Models.Exchange) exchanges;
     mapping (string => Models.InvestmentProgram) investmentPrograms;
-    mapping (string => string) managerIpfsHashes;
 
     event NewExchange(string exchangeId);
     event NewInvestmentProgram(string investmentProgramId, string exchangeId);
@@ -78,12 +78,8 @@ contract GenesisVisionPlatform {
         emit InvestmentProgramLevelRaised(programId);
     }
 
-    function updateManagerIpfsHash(string managerId, string ipfsHash) public gvAdminAndOwnerOnly() {
-        managerIpfsHashes[managerId] = ipfsHash;
-    }
-
-    function getManagerIpfsHash(string managerId) public constant returns (string ipfsHash) {
-        return managerIpfsHashes[managerId];
+    function updateIpfsHash(string newIpfsHash) public gvAdminAndOwnerOnly() {
+        ipfsHash = newIpfsHash;
     }
 
     function transferManagerToken(string programId, address receiver, uint256 tokenCount) public gvAdminAndOwnerOnly() {

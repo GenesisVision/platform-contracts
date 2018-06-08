@@ -123,9 +123,9 @@ contract("GenesisVisionPlatform", function (accounts) {
     
     //#region Manager 
     it("should update Manager IpfsHash", () => {
-        return platform.updateManagerIpfsHash("managerId", "NewHash")
+        return platform.updateIpfsHash("NewHash")
             .then(() => {
-                return platform.getManagerIpfsHash.call("managerId");
+                return platform.ipfsHash.call();
             })
             .then((manager) => {
                 assert.equal("NewHash", manager, "Investment program IpfsHash Updated");
