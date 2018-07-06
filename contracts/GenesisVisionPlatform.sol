@@ -71,7 +71,7 @@ contract GenesisVisionPlatform {
             investmentPrograms[programId].isFinished);
     }
 
-    function raiseLevelInvestmentProgram(string programId, uint256 tokenCount) public{
+    function raiseLevelInvestmentProgram(string programId, uint256 tokenCount) public gvAdminAndOwnerOnly() {
         ManagerToken managerToken = ManagerToken(investmentPrograms[programId].token);
         managerToken.raiseLimit(tokenCount);
         investmentPrograms[programId].level += 1;
