@@ -31,13 +31,22 @@ contract("GenesisVisionPlatform", function (accounts) {
             assert.equal("0ca9e297-416d-484f-8ae7-ab211e94071a", exchange[0], "Exchange should exist");
         });
     });
-    it("should register Larson & Holz", () => {
+    it("should register "Tools For Brokers"", () => {
         return platform.registerExchange("aea53708-0397-4706-be35-9e2deda66dc4", "Tools For Brokers")
         .then(() => {
             return platform.getExchange.call("aea53708-0397-4706-be35-9e2deda66dc4");
         })
         .then((exchange) => {
             assert.equal("aea53708-0397-4706-be35-9e2deda66dc4", exchange[0], "Exchange should exist");
+        });
+    });
+	 it("should register IDEX", () => {
+        return platform.registerExchange("b3e76ec0-8eef-47ae-9205-e383106c3bf3", "IDEX")
+        .then(() => {
+            return platform.getExchange.call("b3e76ec0-8eef-47ae-9205-e383106c3bf3");
+        })
+        .then((exchange) => {
+            assert.equal("b3e76ec0-8eef-47ae-9205-e383106c3bf3", exchange[0], "Exchange should exist");
         });
     });
 });
