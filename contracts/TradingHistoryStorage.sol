@@ -18,7 +18,7 @@ contract TradingHistoryStorage {
         _;
     }
 
-    function TradingHistoryStorage() {
+    constructor() {
         contractOwner = msg.sender;
     }
 
